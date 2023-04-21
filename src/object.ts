@@ -50,7 +50,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    * @param {BaseSchema|boolean} value
    * @returns {ObjectSchema}
    */
-  additionalProperties <P extends BaseSchema | boolean> (schema: P): P extends BaseSchema ? ObjectSchema<O.Merge<T, Record<string, P['otype']>, 'deep'>, R> : this {
+  additionalProperties <P extends BaseSchema | boolean> (schema: P): P extends BaseSchema ? ObjectSchema<O.MergeUp<T, Record<string, P['otype']>>, R> : this {
     return this.copyWith({ plain: { additionalProperties: typeof schema === 'boolean' ? schema : (schema as BaseSchema).plain } }) as any
   }
 
@@ -153,7 +153,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    *
    * @returns {ObjectSchema}
    */
-  partial (): ObjectSchema<O.Optional<T, A.Keys<T>, 'deep'>, R> {
+  partial (): ObjectSchema<O.Optional<T, O.Keys<T>, 'deep'>, R> {
     const plain = (function partial (schema: any) {
       for (const key in schema.properties || {}) {
         if (schema.properties[key].type === 'object') {
