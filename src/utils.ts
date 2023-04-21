@@ -1,7 +1,7 @@
 import ObjectSchema from './object'
 import { L, O } from 'ts-toolbelt'
 
-function pick (keys: string[], obj: any) {
+export function pick (keys: string[], obj: any) {
   const result: Record<string, any> = {}
 
   for (const key of keys) {
@@ -13,7 +13,7 @@ function pick (keys: string[], obj: any) {
   return result
 }
 
-function omit (keys: string[], obj: any) {
+export function omit (keys: string[], obj: any) {
   const result: Record<string, any> = {}
 
   for (const key in obj) {
