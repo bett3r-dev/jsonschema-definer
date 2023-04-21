@@ -19,6 +19,8 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint ./src --fix --ext .js,.jsx,.ts,.tsx",
+    "clean": "rm -rf ./dist",
+    "prebuild": "npm run clean",
     "build": "tsc",
     "check": "npm run lint && npm run build && npm run test",
     "docs": "typedoc --out documentation --mode file src"

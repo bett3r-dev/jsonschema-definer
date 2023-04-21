@@ -3,3 +3,4 @@ coverage
 dist
 docs.json
 documentation
+tsconfig.tsbuildinfo

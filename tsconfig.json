@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-		"baseUrl": ".",
-		"rootDir": ".",
+    "outDir": "./dist",
+		"rootDir": "./src",
     "allowJs": true,
 		"alwaysStrict": false,
 		"checkJs": false,
@@ -25,7 +24,6 @@
     "sourceMap": true,
     "noErrorTruncation":true,
     "target": "ESNext",
-    "composite": true,
     // This one is important so @bett3r-dev/jsonschema-definer works with optionals
     "strictNullChecks": true
 	},
