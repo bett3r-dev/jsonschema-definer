@@ -29,7 +29,7 @@ export default class ArraySchema<T = any, R extends boolean = true> extends Base
    * @returns {ArraySchema}
    */
   items <P extends BaseSchema> (items: P | P[]): ArraySchema<P['type'], R> {
-    return this.copyWith({ plain: { items: Array.isArray(items) ? items.map(el => el.plain) : items.plain } })
+    return this.copyWith({ plain: { items: Array.isArray(items) ? items.map(el => el.plain) : items.plain } }) as ArraySchema<P['type'], R>
   }
 
   /**

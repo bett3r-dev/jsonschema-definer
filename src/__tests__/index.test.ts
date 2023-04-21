@@ -1,65 +1,75 @@
 import S, { BaseSchema } from '../'
-
+import Ajv, { ErrorObject } from 'ajv'
 type Expect<T extends E, E> = T extends E ? true : false;
 
 describe('root instance', () => {
+  const ajv = new Ajv()
+  ajv.addKeyword({
+    keyword: 'custom',
+    validate: (schema, data, x, y) => {
+      return BaseSchema.validators[schema](data, y as any)
+    }
+  })
+  function validate <T> (schema: BaseSchema<T>, data: T): [boolean | PromiseLike<any>, ErrorObject[] | null | undefined] {
+    return [ajv.validate(schema.plain, data), ajv.errors]
+  }
   it('S.string()', () => {
     const schema = S.string()
 
     type Check = Expect<typeof schema.type, string>;
-    expect(schema.validate('valid')[0]).toEqual(true)
+    expect(validate(schema, 'valid')[0]).toEqual(true)
   })
 
   it('S.number()', () => {
     const schema = S.number()
 
     type Check = Expect<typeof schema.type, number>;
-    expect(schema.validate(0)[0]).toEqual(true)
-    expect(schema.validate(0.1)[0]).toEqual(true)
+    expect(validate(schema, 0)[0]).toEqual(true)
+    expect(validate(schema, 0.1)[0]).toEqual(true)
   })
 
   it('S.integer()', () => {
     const schema = S.integer()
 
     type Check = Expect<typeof schema.type, number>;
-    expect(schema.validate(999)[0]).toEqual(true)
-    expect(schema.validate(999.1)[0]).toEqual(false)
+    expect(validate(schema, 999)[0]).toEqual(true)
+    expect(validate(schema, 999.1)[0]).toEqual(false)
   })
 
   it('S.boolean()', () => {
     const schema = S.boolean()
 
     type Check = Expect<typeof schema.type, boolean>;
-    expect(schema.validate(true)[0]).toEqual(true)
-    expect(schema.validate(false)[0]).toEqual(true)
+    expect(validate(schema, true)[0]).toEqual(true)
+    expect(validate(schema, false)[0]).toEqual(true)
   })
 
   it('S.null()', () => {
     const schema = S.null()
 
     type Check = Expect<typeof schema.type, null>;
-    expect(schema.validate(null)[0]).toEqual(true)
+    expect(validate(schema, null)[0]).toEqual(true)
   })
 
   it('S.array()', () => {
     const schema = S.array()
 
     type Check = Expect<typeof schema.type, any[]>;
-    expect(schema.validate([])[0]).toEqual(true)
+    expect(validate(schema, [])[0]).toEqual(true)
   })
 
   it('S.list()', () => {
     const schema = S.list(S.string())
 
     type Check = Expect<typeof schema.type, string[]>;
-    expect(schema.validate(['some'])[0]).toEqual(true)
+    expect(validate(schema, ['some'])[0]).toEqual(true)
   })
 
   it('S.object()', () => {
     const schema = S.object()
 
     type Check = Expect<typeof schema.type, Record<string, any>>;
-    expect(schema.validate({ some: 'any' })[0]).toEqual(true)
+    expect(validate(schema, { some: 'any' })[0]).toEqual(true)
   })
 
   it('S.shape()', () => {
@@ -70,8 +80,8 @@ describe('root instance', () => {
     })
 
     type Check = Expect<typeof schema.type, Type>;
-    expect(schema.validate({ str: 'any', num: 0 })[0]).toEqual(true)
-    expect(schema.validate({ str: 'any', num: undefined })[0]).toEqual(true)
+    expect(validate(schema, { str: 'any', num: 0 })[0]).toEqual(true)
+    expect(validate(schema, { str: 'any', num: undefined })[0]).toEqual(true)
   })
 
   it('S.enum()', () => {
@@ -79,14 +89,14 @@ describe('root instance', () => {
     const schema = S.enum(Type.Some, Type.Any)
 
     type Check = Expect<typeof schema.type, Type>;
-    expect(schema.validate(Type.Some)[0]).toEqual(true)
+    expect(validate(schema, Type.Some)[0]).toEqual(true)
   })
 
   it('S.const()', () => {
     const schema = S.const('some')
 
     type Check = Expect<typeof schema.type, 'some'>;
-    expect(schema.validate('some')[0]).toEqual(true)
+    expect(validate(schema, 'some')[0]).toEqual(true)
   })
 
   it('S.anyOf()', () => {
@@ -94,8 +104,8 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<string | number>>;
     type CheckType = Expect<typeof schema.type, string | number>;
-    expect(schema.validate('some')[0]).toEqual(true)
-    expect(schema.validate(999)[0]).toEqual(true)
+    expect(validate(schema, 'some')[0]).toEqual(true)
+    expect(validate(schema, 999)[0]).toEqual(true)
   })
 
   it('S.oneOf()', () => {
@@ -103,8 +113,8 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<string | number>>;
     type CheckType = Expect<typeof schema.type, string | number>;
-    expect(schema.validate('some')[0]).toEqual(true)
-    expect(schema.validate(999)[0]).toEqual(true)
+    expect(validate(schema, 'some')[0]).toEqual(true)
+    expect(validate(schema, 999)[0]).toEqual(true)
   })
 
   it('S.allOf()', () => {
@@ -112,8 +122,8 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<{ some: string } & { any: number }>>;
     type CheckType = Expect<typeof schema.type, { some: string } & { any: number }>;
-    expect(schema.validate({ some: 'string', any: 0 })[0]).toEqual(false)
-    expect(schema.validate({ some: 'string' } as any)[0]).toEqual(false)
+    expect(validate(schema, { some: 'string', any: 0 })[0]).toEqual(false)
+    expect(validate(schema, { some: 'string' } as any)[0]).toEqual(false)
   })
 
   it('S.not()', () => {
@@ -121,8 +131,8 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<any>>;
     type CheckType = Expect<typeof schema.type, any>;
-    expect(schema.validate('some')[0]).toEqual(false)
-    expect(schema.validate(999)[0]).toEqual(true)
+    expect(validate(schema, 'some')[0]).toEqual(false)
+    expect(validate(schema, 999)[0]).toEqual(true)
   })
 
   it('S.any()', () => {
@@ -130,12 +140,12 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<any>>;
     type CheckType = Expect<typeof schema.type, any>;
-    expect(schema.validate('some')[0]).toEqual(true)
-    expect(schema.validate(999)[0]).toEqual(true)
-    expect(schema.validate(true)[0]).toEqual(true)
-    expect(schema.validate(null)[0]).toEqual(true)
-    expect(schema.validate(undefined)[0]).toEqual(true)
-    expect(schema.validate({})[0]).toEqual(true)
+    expect(validate(schema, 'some')[0]).toEqual(true)
+    expect(validate(schema, 999)[0]).toEqual(true)
+    expect(validate(schema, true)[0]).toEqual(true)
+    expect(validate(schema, null)[0]).toEqual(true)
+    expect(validate(schema, undefined)[0]).toEqual(true)
+    expect(validate(schema, {})[0]).toEqual(true)
   })
 
   it('S.raw()', () => {
@@ -168,6 +178,20 @@ describe('root instance', () => {
     type CheckSchema = Expect<typeof schema, BaseSchema<any>>;
     type CheckType = Expect<typeof schema.type, any>;
     expect(schema.valueOf().$ref).toEqual('some')
+  })
+  it('S.ref() with type inference', () => {
+    const schemaReferenced = S.shape({
+      some: S.string()
+    }).id('some')
+    const deepSchema = S.shape({
+      string: S.string(),
+      number: S.number(),
+      reference: S.ref<typeof schemaReferenced.type>('some')
+    })
+
+    type CheckSchema = Expect<typeof deepSchema, BaseSchema<any>>;
+    type CheckType = Expect<typeof deepSchema.type, any>;
+    expect((deepSchema.valueOf().properties!.reference as any).$ref.valueOf()).toEqual('some')
   })
 
   it('S.title()', () => {
@@ -219,7 +243,7 @@ describe('root instance', () => {
     type CheckSchema = Expect<typeof schema, BaseSchema<{ date:Date, number: Number }>>;
     type CheckType = Expect<typeof schema.type.date, Date>;
     type CheckType2 = Expect<typeof schema.type.number, Number>;
-    const [valid, error] = schema.validate({ date: new Date(), number: new Number(10) }) // eslint-disable-line
+    const [valid, error] = validate(schema, { date: new Date(), number: new Number(10) }) // eslint-disable-line
     console.log(error)
     expect(valid).toEqual(true)
   })
@@ -229,7 +253,7 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<any>>;
     type CheckType = Expect<typeof schema.type, any>;
-    expect(schema.validate('string')[0]).toEqual(true)
+    expect(validate(schema, 'string')[0]).toEqual(true)
   })
 
   it('S.ifThenElse()', () => {
@@ -237,8 +261,8 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<any>>;
     type CheckType = Expect<typeof schema.type, any>;
-    expect(schema.validate('string')[0]).toEqual(true)
-    expect(schema.validate(0)[0]).toEqual(true)
-    expect(schema.validate(999)[0]).toEqual(false)
+    expect(validate(schema, 'string')[0]).toEqual(true)
+    expect(validate(schema, 0)[0]).toEqual(true)
+    expect(validate(schema, 999)[0]).toEqual(false)
   })
 })

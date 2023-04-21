@@ -1,7 +1,13 @@
 import { Schema } from '.'
 import { U } from 'ts-toolbelt'
-import Ajv, { ErrorObject } from 'ajv'
-import { v4 as uuid } from 'uuid'
+
+function uuid () {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0
+    var v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
 
 export type Any = boolean | null | string | number | Record<string, any> | Array<any> | undefined
 
@@ -16,8 +22,8 @@ export interface BaseJsonSchema {
   examples?: any[]
   default?: any
   definitions?: Record<string, Schema['plain']>
-  enum?: Any
-  const?: Any
+  enum?: any
+  const?: any
   oneOf?: Schema['plain'][]
   anyOf?: Schema['plain'][]
   allOf?: Schema['plain'][]
@@ -28,14 +34,10 @@ export interface BaseJsonSchema {
   custom?: string[]
 }
 
-type Validator = (value: any, full: any, schema: Schema['plain'], path: string) => boolean
+type Validator = (value: any, schema: Schema['plain']) => boolean
 
 export default class BaseSchema<T = Any, R extends boolean = true, S extends BaseJsonSchema = Readonly<BaseJsonSchema>> {
   static validators: Record<string, Validator> = {}
-  static ajv = new Ajv().addKeyword('custom', {
-    validate: (value: string[], data: any, schema: Schema['plain'], path: string, full: any) =>
-      value.every(key => BaseSchema.validators[key](data, full, schema, path))
-  })
 
   readonly type: T
   readonly otype: R extends true ? T : T | undefined
@@ -71,8 +73,8 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    * @param {string} ref
    * @returns {this}
    */
-  ref ($ref: string) {
-    return this.copyWith({ plain: { $ref } })
+  ref <T> ($ref: string) {
+    return this.copyWith({ plain: { $ref } }) as unknown as BaseSchema<T>
   }
 
   /**
@@ -313,26 +315,6 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
       return hash
     })
     return this.copyWith({ plain: { custom: [...this.plain.custom || [], ...keys] } })
-  }
-
-  /**
-   * Validate provided data with current schema using ajv, does not throw errors
-   *
-   * @param {T} data
-   */
-  validate (data: T): [boolean | PromiseLike<any>, ErrorObject[] | null | undefined] {
-    return [BaseSchema.ajv.validate(this.valueOf(), data), BaseSchema.ajv.errors]
-  }
-
-  /**
-   * Validate provided data with current schema using ajv, if validation failed function will throw error
-   *
-   * @param {T} data
-   */
-  ensure (data: T) {
-    const [, err] = this.validate(data)
-    if (err) throw err
-    return data
   }
 
   /**
