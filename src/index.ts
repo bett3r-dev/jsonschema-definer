@@ -138,7 +138,7 @@ export class SchemaFactory extends BaseSchema {
    * @param {Class} Type
    */
   instanceOf <P extends Class> (Type: P) {
-    return new BaseSchema<InstanceType<P>>().custom((data: any) => data instanceof Type)
+    return new BaseSchema<InstanceType<P>>().custom((_, data) => data instanceof Type)
   }
 }
 

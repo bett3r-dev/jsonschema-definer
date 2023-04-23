@@ -1,5 +1,6 @@
 import { Schema } from '.'
 import { U } from 'ts-toolbelt'
+import { SchemaValidateFunction } from './types'
 
 function uuid () {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -34,10 +35,10 @@ export interface BaseJsonSchema {
   custom?: string[]
 }
 
-type Validator = (value: any, schema: Schema['plain']) => boolean
+
 
 export default class BaseSchema<T = Any, R extends boolean = true, S extends BaseJsonSchema = Readonly<BaseJsonSchema>> {
-  static validators: Record<string, Validator> = {}
+  static validators: Record<string, SchemaValidateFunction> = {}
 
   readonly type: T
   readonly otype: R extends true ? T : T | undefined
@@ -308,7 +309,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    *
    * @returns {this}
    */
-  custom (...validators: Validator[]) {
+  custom (...validators: SchemaValidateFunction[]) {
     const keys = validators.map(validator => {
       const hash = uuid()
       BaseSchema.validators[hash] = validator
