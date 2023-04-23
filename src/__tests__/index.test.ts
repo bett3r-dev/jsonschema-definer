@@ -6,8 +6,8 @@ describe('root instance', () => {
   const ajv = new Ajv()
   ajv.addKeyword({
     keyword: 'custom',
-    validate: (schema, data, x, y) => {
-      return BaseSchema.validators[schema](data, y as any)
+    validate: (schema, data, parentSchema, dataCxt) => {
+      return BaseSchema.validators[schema[0]](schema ,data, parentSchema, dataCxt)
     }
   })
   function validate <T> (schema: BaseSchema<T>, data: T): [boolean | PromiseLike<any>, ErrorObject[] | null | undefined] {
