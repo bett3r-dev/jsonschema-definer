@@ -95,6 +95,14 @@ describe('ObjectSchema', () => {
     const schema = S.object().optional()
     expect(schema.isRequired).toEqual(false)
   })
+  
+  it('ObjectSchema.prototype.notRequired', () => {
+    const schema = S.shape({ some: S.string() }).notRequired('some')
+    type Check = Expect<typeof schema.type, { some?: string | undefined }>;
+    expect(schema.plain.required).toEqual([])
+    expect(validate(schema, { some: 'some' })[0]).toEqual(true)
+    expect(validate(schema, {})[0]).toEqual(true)
+  })
 
   it('ObjectSchema.prototype.additionalProperties', () => {
     const schema = S.object().additionalProperties(S.string())
