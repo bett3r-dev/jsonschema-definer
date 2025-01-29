@@ -15,10 +15,19 @@ describe('ObjectSchema', () => {
     return [ajv.validate(schema.plain, data), ajv.errors]
   }
   it('ObjectSchema.prototype.partial', () => {
-    const schema = S.shape({ prop: S.shape({ str: S.string(), obj: S.object() }) }).partial()
+    const attributesSchema = S.shape({ str: S.string() })
+    const schema = S.shape({ 
+      arr: S.array().items(attributesSchema).optional(),
+      prop: S.shape({ 
+        str: S.string().optional(), 
+        obj: S.object(), 
+        arr: S.array().items(attributesSchema).optional()
+      }) 
+    });
+    const partialSchema = schema.partial();
 
-    expect(validate(schema, {})[0]).toEqual(true)
-    expect(validate(schema, { prop: {} })[0]).toEqual(true)
+    expect(validate(partialSchema, {})[0]).toEqual(true)
+    expect(validate(partialSchema, { prop: {} })[0]).toEqual(true)
   })
 
   it('ObjectSchema.prototype.propertyNames', () => {

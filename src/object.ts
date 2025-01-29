@@ -162,7 +162,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    *
    * @returns {ObjectSchema}
    */
-  partial (): ObjectSchema<O.Optional<T, O.NonNullableKeys<T>, 'deep'>, R> {
+  partial (): ObjectSchema<O.Partial<T, 'deep'>, R> {
     const plain = (function partial (schema: any) {
       for (const key in schema.properties || {}) {
         if (schema.properties[key].type === 'object') {
