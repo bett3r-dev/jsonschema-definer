@@ -32,10 +32,17 @@ describe('ObjectSchema', () => {
 
   it('ObjectSchema.prototype.propertyNames', () => {
     const schema = S.object().propertyNames(S.string().pattern(/^some$/))
-
     type Check = Expect<typeof schema.type, {}>;
     expect(validate(schema, {})[0]).toEqual(true)
     expect(validate(schema, { some: 'string' })[0]).toEqual(true)
+
+    const schema2 = S.shape({})
+      .additionalProperties(S.string())
+      .propertyNames(S.string().enum('some', 'any'))
+    type Check2 = Expect<typeof schema2.type, {}>;
+    expect(validate(schema2, {})[0]).toEqual(true)
+    expect(validate(schema2, { some: 'string' })[0]).toEqual(true)
+    expect(validate(schema2, { any: 'string' })[0]).toEqual(true)
   })
 
   it('ObjectSchema.prototype.minProperties', () => {

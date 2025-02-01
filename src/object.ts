@@ -60,11 +60,11 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    *
    * @reference https://json-schema.org/latest/json-schema-validation.html#rfc.section.6.5.7
    *
-   * @param {StringSchema} nameSchema
+   * @param {BaseSchema} nameSchema
    * @returns {ObjectSchema}
    */
-  propertyNames (nameSchema: StringSchema) {
-    return this.copyWith({ plain: { propertyNames: nameSchema.plain } })
+  propertyNames <K extends string>(nameSchema: BaseSchema<K>) {
+    return this.copyWith({ plain: { propertyNames: nameSchema.plain } }) as ObjectSchema<Partial<Record<K, T[K]>>, R>
   }
 
   /**
