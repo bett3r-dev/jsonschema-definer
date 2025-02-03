@@ -39,6 +39,7 @@ describe('ObjectSchema', () => {
     const schema2 = S.shape({})
       .additionalProperties(S.string())
       .propertyNames(S.string().enum('some', 'any'))
+
     type Check2 = Expect<typeof schema2.type, {}>;
     expect(validate(schema2, {})[0]).toEqual(true)
     expect(validate(schema2, { some: 'string' })[0]).toEqual(true)

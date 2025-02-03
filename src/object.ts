@@ -63,7 +63,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    * @param {BaseSchema} nameSchema
    * @returns {ObjectSchema}
    */
-  propertyNames <K extends string>(nameSchema: BaseSchema<K>) {
+  propertyNames <K extends string>(nameSchema: BaseSchema<K>): ObjectSchema<Partial<Record<K, T[K]>>, R> {
     return this.copyWith({ plain: { propertyNames: nameSchema.plain } }) as ObjectSchema<Partial<Record<K, T[K]>>, R>
   }
 
