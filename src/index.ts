@@ -42,6 +42,19 @@ export class SchemaFactory extends BaseSchema {
     return new StringSchema().copyWith(this)
   }
 
+  /** Date Shchema */
+  date () {
+    return new BaseSchema<string | Date>('string')
+      .copyWith({ plain: { format: 'date', coerceDate: true } })
+    .copyWith(this)
+  }
+  /** Date Shchema */
+  datetime () {
+    return S.oneOf(S.string().format('date-time'), S.object())
+      .copyWith({ plain: { coerceDate: true, format: 'date-time' } })
+      .copyWith(this)
+  }
+
   /**
    * Create NumericSchema(number)
    *
