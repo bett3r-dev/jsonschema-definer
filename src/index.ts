@@ -4,6 +4,7 @@ import ArraySchema from './array'
 import ObjectSchema from './object'
 import BaseSchema from './base'
 import { O } from 'ts-toolbelt'
+export { ObjectJsonSchema } from './object'
 export * from './utils'
 
 export type Class<T = any> = { new (): T, prototype: T }
