@@ -308,7 +308,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    *
    * @returns {this}
    */
-  nullable () {
+  nullable (): BaseSchema<T | null, R> {
     if (!this.plain.type) {
       this.plain.type = ['null']
       return this

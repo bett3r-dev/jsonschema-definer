@@ -129,4 +129,9 @@ describe('ObjectSchema', () => {
     expect(validate(schema, { numAny: 'string' })[0]).toEqual(true)
     expect(validate(schema, { strSome: 0 } as any)[0]).toEqual(false)
   })
+
+  it('ObjectSchema.prototype.nullable', () => {
+    const schema = S.shape({ some: S.string().nullable() })
+    expect(schema.plain.properties!.some.type).toEqual(['null', 'string'])
+  })
 })
