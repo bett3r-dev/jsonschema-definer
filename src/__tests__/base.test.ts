@@ -25,4 +25,14 @@ describe('BaseSchema', () => {
     expect(() => ensure(schema, 'fail' as any)).toThrowError()
     expect(() => ensure(schema, 'some' as any)).not.toThrowError()
   })
+
+  it('BaseSchema.prototype.nullable', () => {
+    const schema = new BaseSchema().nullable()
+    expect(schema.plain.type).toEqual(['null'])
+  })
+
+  it('BaseSchema constructor with nullable type', () => {
+    const schema = new BaseSchema(['null', 'string'])
+    expect(schema.plain.type).toEqual(['null', 'string'])
+  })
 })

@@ -12,9 +12,11 @@ function uuid () {
 
 export type Any = boolean | null | string | number | Record<string, any> | Array<any> | undefined
 
+type Type = 'boolean' | 'null' | 'array' | 'object' | 'string' | 'number' | 'integer'
+
 export interface BaseJsonSchema {
   [key: string]: any
-  type?: 'boolean' | 'null' | 'array' | 'object' | 'string' | 'number' | 'integer'
+  type?: Type | Type[]
   $id?: string
   $ref?: string
   $schema?: string
@@ -299,6 +301,20 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    */
   ifThenElse (ifClause: BaseSchema, thenClause: BaseSchema, elseClause: BaseSchema) {
     return this.copyWith({ plain: { if: ifClause.plain, then: thenClause.plain, else: elseClause.plain } })
+  }
+
+  /**
+   * Make the schema nullable
+   *
+   * @returns {this}
+   */
+  nullable () {
+    if (!this.plain.type) {
+      this.plain.type = ['null']
+      return this
+    }
+    const type = Array.isArray(this.plain.type) ? [...this.plain.type, 'null' as Type] : ['null' as Type, this.plain.type]
+    return this.copyWith({ plain: { type } })
   }
 
   /**

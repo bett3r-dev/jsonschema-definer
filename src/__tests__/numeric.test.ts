@@ -64,4 +64,9 @@ describe('NumericSchema', () => {
     expect(validate(schema, 4)[0]).toEqual(true)
     expect(validate(schema, 3)[0]).toEqual(false)
   })
+
+  it('NumericSchema.prototype.nullable', () => {
+    const schema = new NumericSchema('number').nullable()
+    expect(schema.plain.type).toEqual(['null', 'number'])
+  })
 })
