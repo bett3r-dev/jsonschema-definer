@@ -355,4 +355,8 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
       ...(this.definitions && { definitions: this.definitions })
     }
   }
+
+  toJSON () {
+    return this.plain
+  }
 }
