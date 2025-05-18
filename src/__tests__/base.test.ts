@@ -1,5 +1,5 @@
 import Ajv from 'ajv'
-import { BaseSchema } from '../'
+import S, { BaseSchema } from '../'
 
 describe('BaseSchema', () => {
   const ajv = new Ajv()
@@ -35,4 +35,12 @@ describe('BaseSchema', () => {
     const schema = new BaseSchema(['null', 'string'])
     expect(schema.plain.type).toEqual(['null', 'string'])
   })
+
+  it('BaseSchema.prototype.toJSON', () => {
+    const schema = new BaseSchema().nullable()
+    expect(schema.toJSON()).toEqual({ type: ['null'] })
+    const schema2 = S.shape({ some: S.string(), object: S.shape({ some: S.string() }) }).notRequired('some')
+    expect(JSON.stringify(schema2)).toEqual('{"type":"object","additionalProperties":false,"properties":{"some":{"type":"string"},"object":{"type":"object","additionalProperties":false,"properties":{"some":{"type":"string"}},"required":["some"]}},"required":["object"]}')
+  })
+
 })
