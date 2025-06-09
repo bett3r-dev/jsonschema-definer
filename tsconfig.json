@@ -24,6 +24,7 @@
     "sourceMap": true,
     "noErrorTruncation":true,
     "target": "ESNext",
+    "lib": ["ESNext"],
     // This one is important so @bett3r-dev/jsonschema-definer works with optionals
     "strictNullChecks": true
 	},
