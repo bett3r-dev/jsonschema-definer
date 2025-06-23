@@ -231,7 +231,7 @@ describe('root instance', () => {
 
     type CheckSchema = Expect<typeof schema, BaseSchema<any>>;
     type CheckType = Expect<typeof schema.type, any>;
-    expect(schema.valueOf().definitions).toEqual({ some: S.string().plain })
+    expect(schema.valueOf().$defs).toEqual({ some: S.string().plain })
   })
 
   it('S.instanceOf()', () => {

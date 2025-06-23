@@ -24,7 +24,7 @@ export interface BaseJsonSchema {
   description?: string
   examples?: any[]
   default?: any
-  definitions?: Record<string, Schema['plain']>
+  $defs?: Record<string, Schema['plain']>
   enum?: any
   const?: any
   oneOf?: Schema['plain'][]
@@ -48,7 +48,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
   readonly isRequired: boolean = true
   readonly isFluentSchema = true
   readonly $schema: string = 'http://json-schema.org/draft-07/schema#'
-  readonly definitions: Record<string, Schema['plain']>
+  readonly $defs: Record<string, Schema['plain']>
 
   constructor (type?: S['type']) {
     if (type) (this.plain as S).type = type
@@ -77,7 +77,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    * @returns {this}
    */
   ref <T> ($ref: string) {
-    return this.copyWith({ plain: { $ref } }) as unknown as BaseSchema<T>
+    return this.copyWith({ plain: { ...(this.$defs ? { $defs: this.$defs } : {}), $ref } }) as unknown as BaseSchema<T>
   }
 
   /**
@@ -151,10 +151,10 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
   }
 
   /**
-   * The "definitions" keywords provides a standardized location for schema authors to inline re-usable JSON Schemas into a more general schema.
+   * The "$defs" keywords provides a standardized location for schema authors to inline re-usable JSON Schemas into a more general schema.
    * There are no restrictions placed on the values within the array.
    *
-   * @example { definitions: { [name]: definition } }
+   * @example { $defs: { [name]: definition } }
    *
    * @reference https://json-schema.org/latest/json-schema-validation.html#rfc.section.9
    *
@@ -163,7 +163,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    * @returns {this}
    */
   definition (name: string, definition: BaseSchema) {
-    return this.copyWith({ definitions: { ...this.definitions, [name]: definition.plain } })
+    return this.copyWith({ plain: { $defs: { ...this.$defs, [name]: definition.plain } } })
   }
 
   /**
@@ -352,7 +352,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
     return {
       ...this.plain,
       ...(this.$schema && { $schema: this.$schema }),
-      ...(this.definitions && { definitions: this.definitions })
+      ...(this.$defs && { $defs: this.$defs })
     }
   }
 
