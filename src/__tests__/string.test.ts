@@ -55,4 +55,15 @@ describe('StringSchema', () => {
     expect(validate(schema, 'some')[0]).toEqual(true)
     expect(validate(schema, 's')[0]).toEqual(false)
   })
+
+  it('StringSchema.prototype.nullable', () => {
+    const schema = new StringSchema().nullable()
+    expect(schema.plain.type).toEqual(['null', 'string'])
+  })
+  it('StringSchema.prototype.nullable with optional and enum', () => {
+    const schema = new StringSchema()
+      .enum('some', 'any')
+      .nullable()
+    expect(schema.plain).toEqual({ type: ['null', 'string'], enum: ['some', 'any', null] })
+  })
 })

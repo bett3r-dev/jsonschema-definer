@@ -134,4 +134,87 @@ describe('ObjectSchema', () => {
     const schema = S.shape({ some: S.string().nullable() })
     expect(schema.plain.properties!.some.type).toEqual(['null', 'string'])
   })
+
+  it('string propertynullable with optional and enum', () => {
+    const schema = S.shape({ 
+      some: S.string()
+        .enum('some', 'any') 
+        .nullable()
+        .optional()
+    })
+    expect(schema.plain).toEqual({
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        some: { type: ['null', 'string'], enum: ['some', 'any', null] }
+      }
+    })
+
+    expect(validate(schema, { some: 'some' })[0]).toEqual(true)
+    expect(validate(schema, { some: 'any' })[0]).toEqual(true)
+    expect(validate(schema, { some: undefined })[0]).toEqual(true)
+
+    validate(schema, { some: null });//?
+
+    expect(validate(schema, { some: null })[0]).toEqual(true)
+  })
+  it('string propertynullable with enum', () => {
+    const schema = S.shape({ 
+      some: S.string()
+        .enum('some', 'any') 
+        .nullable()
+    })
+    expect(schema.plain).toEqual({
+      type: 'object',
+      required: ['some'],
+      additionalProperties: false,
+      properties: {
+        some: { type: ['null', 'string'], enum: ['some', 'any', null] }
+      }
+    })
+  })
+
+  it('string propertynullable with enum and required', () => {
+    const TiendanubeTextSchema = S.shape({
+      es: S.string(),
+      pt: S.string().optional(),
+      en: S.string().optional()
+    });
+    const schema = S.shape({
+      name: S.string(),
+      seo_title: S.anyOf( S.string().maxLength( 70 ), TiendanubeTextSchema )
+        .nullable()
+        .optional()
+    })
+
+    expect(schema.plain).toEqual({
+      type: 'object',
+      required: ['name'],
+      additionalProperties: false,
+      properties: {
+        name: { type: 'string' },
+        seo_title: {
+          anyOf: [
+            { type: 'string', maxLength: 70 },
+            { 
+              type: 'object', 
+              additionalProperties: false, 
+              required: ['es'],
+              properties: { 
+                es: { type: 'string' }, 
+                pt: { type: 'string' }, 
+                en: { type: 'string' } 
+              }
+            },
+            { type: 'null' }
+          ]
+        }
+      }
+    });
+
+    expect(validate(schema, { name: 'name', seo_title: 'seo_title' })[0]).toEqual(true)
+    expect(validate(schema, { name: 'name', seo_title: { es: 'es', pt: 'pt', en: 'en' } })[0]).toEqual(true)
+    expect(validate(schema, { name: 'name', seo_title: null })[0]).toEqual(true)
+    expect(validate(schema, { name: 'name', seo_title: undefined })[0]).toEqual(true)
+  })
 })

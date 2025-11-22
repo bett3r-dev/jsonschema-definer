@@ -310,11 +310,106 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
    */
   nullable (): BaseSchema<T | null, R> {
     if (!this.plain.type) {
-      this.plain.type = ['null']
-      return this
+      // Extract types from anyOf, oneOf, or allOf if present
+      const extractedTypes = new Set<Type>()
+      let hasObjectOrArray = false
+      
+      const schemasToCheck = [
+        ...(this.plain.anyOf || []),
+        ...(this.plain.oneOf || []),
+        ...(this.plain.allOf || [])
+      ]
+      
+      // Primitive types that should be included in the type array
+      const primitiveTypes: Type[] = ['string', 'number', 'integer', 'boolean']
+      
+      for (const schema of schemasToCheck) {
+        if (schema.type) {
+          if (Array.isArray(schema.type)) {
+            schema.type.forEach(t => {
+              if (t === 'object' || t === 'array') {
+                hasObjectOrArray = true
+              } else if (primitiveTypes.includes(t as Type)) {
+                extractedTypes.add(t as Type)
+              }
+            })
+          } else {
+            if (schema.type === 'object' || schema.type === 'array') {
+              hasObjectOrArray = true
+            } else if (primitiveTypes.includes(schema.type as Type)) {
+              extractedTypes.add(schema.type as Type)
+            }
+          }
+        }
+      }
+      
+      // If anyOf/oneOf/allOf contains object or array types, we can't set a restrictive type
+      // because AJV validates the type restriction before checking anyOf, which would
+      // cause validation to fail for object/array values. Instead, we add { type: 'null' }
+      // to the anyOf/oneOf arrays to allow null values.
+      if (hasObjectOrArray) {
+        const plainUpdate: Partial<BaseJsonSchema> = {}
+        
+        // Add null to anyOf if it exists
+        if (this.plain.anyOf && Array.isArray(this.plain.anyOf)) {
+          // Check if null is already in anyOf
+          const hasNull = this.plain.anyOf.some(s => 
+            s.type === 'null' || (Array.isArray(s.type) && s.type.includes('null'))
+          )
+          if (!hasNull) {
+            plainUpdate.anyOf = [...this.plain.anyOf, { type: 'null' }]
+          }
+        }
+        
+        // Add null to oneOf if it exists
+        if (this.plain.oneOf && Array.isArray(this.plain.oneOf)) {
+          const hasNull = this.plain.oneOf.some(s => 
+            s.type === 'null' || (Array.isArray(s.type) && s.type.includes('null'))
+          )
+          if (!hasNull) {
+            plainUpdate.oneOf = [...this.plain.oneOf, { type: 'null' }]
+          }
+        }
+        
+        // If enum exists, add null to it
+        if (this.plain.enum && Array.isArray(this.plain.enum)) {
+          plainUpdate.enum = [...this.plain.enum, null]
+        }
+        
+        return this.copyWith({ plain: plainUpdate })
+      }
+      
+      // If we found types, use them; otherwise just use 'null'
+      const types = extractedTypes.size > 0 
+        ? Array.from(extractedTypes).sort((a, b) => {
+            // Sort so 'null' comes first, then alphabetically
+            if (a === 'null') return -1
+            if (b === 'null') return 1
+            return a.localeCompare(b)
+          })
+        : []
+      
+      // Ensure 'null' is included
+      if (!types.includes('null')) {
+        types.unshift('null')
+      }
+      
+      const plainUpdate: Partial<BaseJsonSchema> = { type: types.length > 0 ? types : ['null'] }
+      // If enum exists, add null to it
+      if (this.plain.enum && Array.isArray(this.plain.enum)) {
+        plainUpdate.enum = [...this.plain.enum, null]
+      }
+      return this.copyWith({ plain: plainUpdate })
     }
     const type = Array.isArray(this.plain.type) ? [...this.plain.type, 'null' as Type] : ['null' as Type, this.plain.type]
-    return this.copyWith({ plain: { type } })
+    const plainUpdate: Partial<BaseJsonSchema> = { type }
+    
+    // If enum exists, add null to it
+    if (this.plain.enum && Array.isArray(this.plain.enum)) {
+      plainUpdate.enum = [...this.plain.enum, null]
+    }
+    
+    return this.copyWith({ plain: plainUpdate })
   }
 
   /**
