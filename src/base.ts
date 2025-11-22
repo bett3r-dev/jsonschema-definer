@@ -48,7 +48,7 @@ export default class BaseSchema<T = Any, R extends boolean = true, S extends Bas
   readonly isRequired: boolean = true
   readonly isFluentSchema = true
   readonly $schema: string = 'http://json-schema.org/draft-07/schema#'
-  readonly $defs: Record<string, Schema['plain']>
+  readonly $defs?: Record<string, Schema['plain']>
 
   constructor (type?: S['type']) {
     if (type) (this.plain as S).type = type

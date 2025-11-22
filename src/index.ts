@@ -3,6 +3,7 @@ import NumericSchema from './numeric'
 import ArraySchema from './array'
 import ObjectSchema from './object'
 import BaseSchema from './base'
+import FunctionSchema from './function'
 import { O } from 'ts-toolbelt'
 export { ObjectJsonSchema } from './object'
 export * from './utils'
@@ -17,8 +18,9 @@ export type Schema =
   | NumericSchema
   | ArraySchema
   | ObjectSchema
+  | FunctionSchema
 
-export { BaseSchema, StringSchema, NumericSchema, ArraySchema, ObjectSchema }
+export { BaseSchema, StringSchema, NumericSchema, ArraySchema, ObjectSchema, FunctionSchema }
 
 export class SchemaFactory extends BaseSchema {
   /**
@@ -153,6 +155,10 @@ export class SchemaFactory extends BaseSchema {
    */
   instanceOf <P extends Class> (Type: P) {
     return new BaseSchema<InstanceType<P>>().custom((_, data) => data instanceof Type)
+  }
+
+  function<Args extends any[] = any[], R = any>() {
+    return new FunctionSchema<Args, R>().copyWith(this)
   }
 }
 
