@@ -154,7 +154,7 @@ describe('ObjectSchema', () => {
     expect(validate(schema, { some: 'any' })[0]).toEqual(true)
     expect(validate(schema, { some: undefined })[0]).toEqual(true)
 
-    validate(schema, { some: null });//?
+    validate(schema, { some: null });
 
     expect(validate(schema, { some: null })[0]).toEqual(true)
   })

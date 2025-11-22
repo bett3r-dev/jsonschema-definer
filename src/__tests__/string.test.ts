@@ -33,7 +33,7 @@ describe('StringSchema', () => {
 
   it('StringSchema.prototype.format', () => {
     const schema = new StringSchema().format('date-time')
-    validate(schema, new Date().toISOString())[0];//?
+    validate(schema, new Date().toISOString())[0];
     expect(validate(schema, new Date().toISOString())[0]).toEqual(true)
     expect(validate(schema, 'some')[0]).toEqual(false)
   })
