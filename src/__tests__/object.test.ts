@@ -101,7 +101,7 @@ describe('ObjectSchema', () => {
   })
 
   it('ObjectSchema.prototype.required', () => {
-    const schema = S.object().prop('some', S.string().optional()).prop('any', S.string().optional()).required('some')
+    const schema = S.object().prop('some', S.string().optional()).prop('any', S.string().optional()).required(['some'])
 
     type Check = Expect<typeof schema.type, { some?: string; any?: string }>;
     expect(validate(schema, { some: 'some', any: 'any' })[0]).toEqual(true)

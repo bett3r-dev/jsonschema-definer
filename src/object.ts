@@ -135,7 +135,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    *
    * @returns {ObjectSchema}
    */
-  required <S extends string[]> (...fields: S): ObjectSchema<O.Required<T, S[number]>, R> {
+  required <S extends string[]> (fields: S): ObjectSchema<O.Required<T, S[number]>, R> {
     return this.copyWith({ plain: { required: fields } }) as any
   }
 
@@ -169,7 +169,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
           schema = { ...schema, properties: { ...schema.properties, [key]: partial({ ...schema.properties[key] }) } }
         }
       }
-      const { required, ...partialSchema } = schema // eslint-disable-line @typescript-eslint/no-unused-vars
+      const { required, ...partialSchema } = schema 
       return partialSchema
     })(this.valueOf())
     return Object.assign(Object.create(this.constructor.prototype), { ...this, plain })
