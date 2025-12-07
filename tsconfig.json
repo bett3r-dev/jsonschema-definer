@@ -26,7 +26,8 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     // This one is important so @bett3r-dev/jsonschema-definer works with optionals
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "isolatedModules": true
 	},
 	"include": ["src/**/*"],
   "exclude": ["**/*.test.ts"]

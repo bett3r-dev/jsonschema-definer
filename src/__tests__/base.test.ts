@@ -22,8 +22,8 @@ describe('BaseSchema', () => {
 
   it('BaseSchema.prototype.ensure', () => {
     const schema = new BaseSchema().enum('some', 'any')
-    expect(() => ensure(schema, 'fail' as any)).toThrowError()
-    expect(() => ensure(schema, 'some' as any)).not.toThrowError()
+    expect(() => ensure(schema, 'fail' as any)).toThrow()
+    expect(() => ensure(schema, 'some' as any)).not.toThrow()
   })
 
   it('BaseSchema.prototype.nullable', () => {
