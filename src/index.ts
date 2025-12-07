@@ -5,7 +5,7 @@ import ObjectSchema from './object'
 import BaseSchema from './base'
 import FunctionSchema from './function'
 import { O } from 'ts-toolbelt'
-export { ObjectJsonSchema } from './object'
+export { type ObjectJsonSchema } from './object'
 export * from './utils'
 
 export type Class<T = any> = { new (): T, prototype: T }
