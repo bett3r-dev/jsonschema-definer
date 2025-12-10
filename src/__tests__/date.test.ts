@@ -52,7 +52,7 @@ describe('DateSchema', () => {
     const schema = S.date();
     expect(schema.plain.format).toEqual('date')
   })
-  it('DateSchema.prototype.format', () => {
+  it('DateSchema.prototype.format datetime', () => {
     const schema = S.datetime();
     expect(schema.plain.format).toEqual('date-time')
   })

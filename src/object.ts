@@ -144,7 +144,7 @@ export default class ObjectSchema<T extends Record<string, any> = {}, R extends 
    *
    * @returns {ObjectSchema}
    */
-  notRequired <S extends string[]> (...fields: S): ObjectSchema<O.Optional<T, S[number]>, R> {
+  notRequired <S extends string[]> (fields: S): ObjectSchema<O.Optional<T, S[number]>, R> {
     return this.copyWith({ plain: { required: this.plain.required?.filter(field => !fields.includes(field)) } }) as any
   }
 

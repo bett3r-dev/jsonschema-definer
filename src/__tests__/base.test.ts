@@ -39,8 +39,8 @@ describe('BaseSchema', () => {
   it('BaseSchema.prototype.toJSON', () => {
     const schema = new BaseSchema().nullable()
     expect(schema.toJSON()).toEqual({ type: ['null'] })
-    const schema2 = S.shape({ some: S.string(), object: S.shape({ some: S.string() }) }).notRequired('some')
-    expect(JSON.stringify(schema2)).toEqual('{"type":"object","additionalProperties":false,"properties":{"some":{"type":"string"},"object":{"type":"object","additionalProperties":false,"properties":{"some":{"type":"string"}},"required":["some"]}},"required":["object"]}')
+    const schema2 = S.shape({ foo: S.string(), object: S.shape({ bar: S.string() }) }).notRequired(['foo'])
+    expect(JSON.stringify(schema2)).toEqual('{"type":"object","additionalProperties":false,"properties":{"foo":{"type":"string"},"object":{"type":"object","additionalProperties":false,"properties":{"bar":{"type":"string"}},"required":["bar"]}},"required":["object"]}')
   })
 
 })

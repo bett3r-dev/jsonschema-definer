@@ -21,7 +21,6 @@ describe('FunctionSchema', () => {
     const schema = S.function<[number, string], boolean>()
     const fn: Fn = (a, b) => true
     // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const notFn: Fn = 123
     expect(schema.validate(fn)).toBe(true)
   })
