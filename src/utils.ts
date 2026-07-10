@@ -1,4 +1,4 @@
-import ObjectSchema from './object'
+import ObjectSchema, { ObjectJsonSchema } from './object'
 import { L, O } from 'ts-toolbelt'
 
 export function pick (keys: string[], obj: any) {
@@ -39,8 +39,33 @@ export const mergeMultipleSchemas = <S extends ObjectSchema[]> (...schemas: S): 
   return resultSchema as ObjectSchema<MergeSchemasRecursive<S>>
 }
 
+type AdditionalProperties = ObjectJsonSchema['additionalProperties']
+
+/**
+ * Resolves two `additionalProperties` values to the STRICTER of the two, so that merging a
+ * strict schema onto a permissive one never silently loosens validation.
+ *
+ * Strictness ranking (highest wins):
+ *   false            -> strictest, no extra properties allowed
+ *   schema (object)  -> extra properties allowed only if they match the schema
+ *   true / undefined -> permissive, any extra property allowed (undefined === omitted === true)
+ *
+ * When both are schema-valued the first (master) is kept, matching mergeSchemas' precedence.
+ */
+const stricterAdditionalProperties = (a: AdditionalProperties, b: AdditionalProperties): AdditionalProperties => {
+  const rank = (value: AdditionalProperties): number => {
+    if (value === false) return 2
+    if (value === true || value === undefined) return 0
+    return 1
+  }
+  return rank(a) >= rank(b) ? a : b
+}
+
 /**
  * Merges the properties of 2 schemas into a new one taking the first one as master.
+ * `additionalProperties` is an exception: the STRICTER of the two is kept (see
+ * {@link stricterAdditionalProperties}) so a strict shape merged onto a permissive base
+ * stays strict.
  *
  * @reference https://json-schema.org/latest/json-schema-validation.html#rfc.section.6.5.4
  *
@@ -49,9 +74,11 @@ export const mergeMultipleSchemas = <S extends ObjectSchema[]> (...schemas: S): 
  * @returns {ObjectSchema}
  */
 export const mergeSchemas = <S1 extends ObjectSchema, S2 extends ObjectSchema> (schema1: S1, schema2: S2): ObjectSchema<O.Merge<S1['otype'], S2['otype']>> => {
+  const additionalProperties = stricterAdditionalProperties(schema1.plain.additionalProperties, schema2.plain.additionalProperties)
   return schema1.copyWith({
     plain: {
       properties: { ...schema1.plain.properties, ...schema2.plain.properties },
+      ...(additionalProperties !== undefined && { additionalProperties }),
       ...(schema1.isRequired && { required: [...schema1.plain.required || [], ...schema2.plain.required || []] })
     }
   }) as unknown as ObjectSchema<O.Merge<S1['otype'], S2['otype']>>
