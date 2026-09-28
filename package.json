@@ -1,6 +1,6 @@
 {
   "name": "@bett3r-dev/jsonschema-definer",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "description": "JSON Schema constructor and validator",
   "main": "dist/index.js",
   "author": "Igor Solomakha <fumo.sujimoshi@gmail.com>",
@@ -46,5 +46,14 @@
   },
   "dependencies": {
     "ts-toolbelt": "^6"
-  }
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }
